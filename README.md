@@ -27,7 +27,7 @@ cp .env.development .env
 3. Run the below command to start the server in `dev` mode.
 
 ```bash
-npm run start:dev
+npm run dev
 ```
 
 4. Run the below command to start the server in `prod` mode.
@@ -46,7 +46,7 @@ cp .env.development .env
 
 b. Run the below command to bring up the server in dev environment
 ```bash
-docker compose -f docker-compose-local.yml up
+docker compose -f docker-compose-local.yml --env-file .env.development up --build backend
 ```
 
 For any otehr environments u can consifure the .env.<environment> file and follow the above 2 steps. 
