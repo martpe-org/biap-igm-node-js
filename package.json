@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npm run tsc",
+    "build2": "tsx tsconfig.json",
     "start": "./bin/start",
     "start:prod": "node ./dist/index.js",
     "start:dev": "ts-node-dev ./index.ts",
