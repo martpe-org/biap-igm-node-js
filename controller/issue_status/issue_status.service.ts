@@ -43,7 +43,7 @@ class IssueStatusService {
         action: PROTOCOL_CONTEXT.ISSUE_STATUS,
         transactionId: requestContext?.transaction_id,
         bppId: requestContext?.bpp_id,
-        bpp_uri: issueDetails?.[0]?.bpp_uri,
+        bpp_uri: issueDetails?.[0]?.bpp_uri || requestContext?.bpp_uri,
         cityCode: issueDetails.city,
       });
 

@@ -110,17 +110,16 @@ class IssueService {
   }
 
   async addComplainantAction(issue: IssueProps, domain: string) {
-    const date = new Date();
     const initialComplainantAction = {
       complainant_action: "OPEN",
       short_desc: "Complaint created",
-      updated_at: date,
+      updated_at: issue.updated_at,
       updated_by: {
         org: {
           name: process.env.BAP_ID + "::" + domain,
         },
-        contact: issue.complainant_info.contact,
-        person: issue.complainant_info.person,
+        contact: issue.complainant_info?.contact,
+        person: issue.complainant_info?.person,
       },
     };
     if (!issue?.issue_actions?.complainant_actions?.length) {
@@ -151,8 +150,8 @@ class IssueService {
         domain: requestContext?.domain,
         action: PROTOCOL_CONTEXT.ISSUE,
         transactionId: requestContext?.transaction_id,
-        bppId: issue?.bppId,
-        bpp_uri: issue?.bpp_uri,
+        bppId: requestContext?.bpp_id,
+        bpp_uri: requestContext?.bpp_uri,
         city: requestContext?.city,
         state: requestContext?.state,
       });
@@ -166,19 +165,19 @@ class IssueService {
           action: PROTOCOL_CONTEXT.ISSUE,
           transactionId: requestContext?.transaction_id,
           bppId: requestContext?.bpp_id || existingIssue.bppId,
-          bpp_uri: existingIssue?.bpp_uri,
+          bpp_uri: requestContext?.bpp_uri || existingIssue?.bpp_uri,
           city: requestContext?.city,
           state: requestContext?.state,
         });
         const bppResponse: any = await bppIssueService.closeOrEscalateIssue(
           context,
-          { ...issue, id: existingIssue.issueId }
+          { ...issue, id: existingIssue.issueId, created_at: existingIssue.created_at }
         );
 
         if (message?.issue?.issue_type === "GRIEVANCE") {
           existingIssue["issue_status"] = "Open";
         } else {
-          existingIssue["issue_status"] = "Close";
+          existingIssue["issue_status"] = "Closed";
         }
         const complainant_actions = issue?.issue_actions?.complainant_actions;
         existingIssue.issue_actions.complainant_actions = complainant_actions;

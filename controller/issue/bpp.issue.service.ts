@@ -18,7 +18,7 @@ class BppIssueService {
       const { issue_actions, order_details, description } = issue;
 
       const issueRequest: IssueRequest = {
-        context: context,
+        context: context, 
         message: {
           issue: {
             id: issue?.issueId,
@@ -32,7 +32,7 @@ class BppIssueService {
                 order_details?.items.map((item: Item) => {
                   return {
                     id: item?.id?.toString(),
-                    quantity: item?.quantity?.count,
+                    quantity: item?.quantity,
                   };
                 }) || [],
               fulfillments: order_details?.fulfillments.map(
@@ -49,14 +49,15 @@ class BppIssueService {
               short_desc: description?.short_desc,
               long_desc: description?.long_desc,
               additional_desc: description?.additional_desc,
-              images: description?.images,
+              //images: ['https://picsum.photos/200', 'https://picsum.photos/200'] || description?.images,
+              images: description?.images
             },
             source: {
-              network_participant_id: process.env.BAP_ID,
+              network_participant_id: process.env.BAP_URI || "https://bap-qa.martpe.in/ondc",
               type: "CONSUMER",
             },
             expected_response_time: {
-              duration: process.env.EXPECTED_RESPONSE_TIME || "PT1H",
+              duration: process.env.EXPECTED_RESPONSE_TIME || "PT2H",
             },
             expected_resolution_time: {
               duration: process.env.EXPECTED_RESOLUTION_TIME || "P1D",
@@ -64,13 +65,14 @@ class BppIssueService {
             status: issue?.status || "OPEN",
             issue_type: PROTOCOL_CONTEXT?.ISSUE.toUpperCase(),
             issue_actions: issue_actions,
-            created_at: issue?.created_at,
-            updated_at: new Date(),
+            created_at: issue?.created_at || new Date(),
+            updated_at: issue?.updated_at || new Date(),
           },
         },
       };
 
       const response: Response = await protocolIssue(issueRequest);
+      console.log('res ',response);
       return { context: context, message: response.message };
     } catch (err) {
       throw err;
@@ -80,7 +82,7 @@ class BppIssueService {
     try {
       const { issue_actions } = issue;
 
-      const issueRequest: any = {
+      let issueRequest: any = {
         context: context,
         message: {
           issue: {
@@ -90,10 +92,14 @@ class BppIssueService {
             rating: issue?.rating,
             created_at: issue?.created_at,
             updated_at: issue?.updated_at,
-            issue_type: PROTOCOL_CONTEXT?.ISSUE.toUpperCase(),
+            //issue_type: PROTOCOL_CONTEXT?.ISSUE.toUpperCase(),
           },
         },
       };
+
+      if(issue?.issue_type){
+        issueRequest.message.issue_type = issue?.issue_type;
+      }
 
       const response: any = await protocolIssue(issueRequest);
       return { context: context, message: response?.message };

@@ -16,7 +16,7 @@ npm install
 
 ## Starting the server
 
-1. Create the `.env` file by copying from the `.env.development` file, you the run the below command for it
+1. Create the `.env` file by copying from the `.env.development` file, you can run the below command for it
 
 ```bash
 cp .env.development .env
@@ -49,4 +49,4 @@ b. Run the below command to bring up the server in dev environment
 docker compose -f docker-compose-local.yml --env-file .env.development up --build backend
 ```
 
-For any otehr environments u can consifure the .env.<environment> file and follow the above 2 steps. 
+For any otehr environments you can configure the .env.<environment> file and follow the above 2 steps. 

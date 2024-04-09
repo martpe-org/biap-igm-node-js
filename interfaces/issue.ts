@@ -170,7 +170,7 @@ export interface StartLocation {
 
 export interface Item {
   id: string;
-  quantity: Quantity;
+  quantity: number;
   product: Product;
 }
 

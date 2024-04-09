@@ -67,11 +67,11 @@ class ContextFactory {
       core_version: PROTOCOL_VERSION.v_1_0_0,
       bap_id: this.bapId,
       bap_uri: this.bapUrl,
+      ...(bppId && { bpp_id: bppId }),
       bpp_uri: bpp_uri,
       transaction_id: transactionId || uuidv4(),
       message_id: messageId,
       timestamp: this.timestamp,
-      ...(bppId && { bpp_id: bppId }),
       ttl: "PT30S",
     };
   }
