@@ -99,6 +99,7 @@ class IssueStatusService {
             issue.issue_actions
           );
         }
+        protocolSupportResponse[0].message.issue.updated_at = protocolSupportResponse?.[0].context.timestamp;
         return protocolSupportResponse?.[0];
       } else {
         const contextFactory = new ContextFactory();
