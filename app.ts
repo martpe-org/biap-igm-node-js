@@ -27,6 +27,13 @@ const createServer = (): express.Application => {
   app.use(express.static("images"));
   app.use("/issueApis/uploads", express.static("images"));
 
+  app.get("/issueApis/health_check", async (_req: Request, res: Response): Promise<Response> => {
+    return res.status(200).send({
+      success: true,
+      message: "The IGM service is running",
+    });
+  });
+
   // eslint-disable-next-line no-unused-vars
   app.get("/", async (_req: Request, res: Response): Promise<Response> => {
     return res.status(200).send({
