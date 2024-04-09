@@ -1,5 +1,6 @@
 import { Response, NextFunction } from "express";
-import validateToken from "../lib/firebase/validateToken";
+// import validateToken from "../lib/firebase/validateToken";
+import validateToken from "../lib/jwt/validateToken";
 
 const authentication = () => (req: any, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;

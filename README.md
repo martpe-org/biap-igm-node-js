@@ -49,4 +49,4 @@ b. Run the below command to bring up the server in dev environment
 docker compose -f docker-compose-local.yml --env-file .env.development up --build backend
 ```
 
-For any otehr environments you can configure the .env.<environment> file and follow the above 2 steps. 
+For any other environments you can configure the .env.<environment> file and follow the above 2 steps. 
