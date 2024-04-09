@@ -50,3 +50,23 @@ docker compose -f docker-compose-local.yml --env-file .env.development up --buil
 ```
 
 For any other environments you can configure the .env.<environment> file and follow the above 2 steps. 
+
+## Starting the server on EC2
+
+1. Run the below command to build the project
+
+```bash
+npm run build
+```
+
+2. Run the below command to start the server using pm2.
+
+```bash
+# for development
+pm2 start pm2.config.js --env development
+
+# (or)
+
+# for production
+pm2 start pm2.config.js --env production
+```
