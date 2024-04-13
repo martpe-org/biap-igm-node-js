@@ -5,6 +5,7 @@ import BppIssueService from "./bpp.issue.service";
 import Issue from "../../database/issue.model";
 import { logger } from "../../shared/logger";
 import getSignedUrlForUpload from "../../utils/s3Util";
+import { Buffer } from "buffer";
 
 import {
   IParamProps,
@@ -18,6 +19,7 @@ import {
   addOrUpdateIssueWithtransactionId,
   getIssueByTransactionId,
 } from "../../utils/dbservice";
+import axios from "axios";
 
 const bppIssueService = new BppIssueService();
 const bugzillaService = new BugzillaService();
@@ -37,58 +39,98 @@ class IssueService {
       },
     };
   }
-  async uploadImage(base64: string) {
+  // async uploadImage(base64: string) {
+  //   try {
+  //     let matches: string[] | any = base64.match(
+  //       /^data:([A-Za-z-+/]+);base64,(.+)$/
+  //     );
+  //     // response: IResponseProps = {
+  //     //   type: "",
+  //     //   data: new Buffer(matches[1], "base64"),
+  //     // };
+
+  //     if (matches.length !== 3) {
+  //       throw new Error("Invalid input string");
+  //     }
+
+  //     const b64toBlob = (b64Data: any, contentType = "", sliceSize = 512) => {
+  //       //const byteCharacters = atob(b64Data);
+  //       const byteCharacters = Buffer.from(b64Data, 'base64').toString()
+  //       const byteArrays = [];
+
+  //       for (
+  //         let offset = 0;
+  //         offset < byteCharacters.length;
+  //         offset += sliceSize
+  //       ) {
+  //         const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+  //         const byteNumbers = new Array(slice.length);
+  //         for (let i = 0; i < slice.length; i++) {
+  //           byteNumbers[i] = slice.charCodeAt(i);
+  //         }
+
+  //         const byteArray = new Uint8Array(byteNumbers);
+  //         byteArrays.push(byteArray);
+  //       }
+
+  //       const blob = new Blob(byteArrays, { type: contentType });
+  //       return blob;
+  //     };
+
+  //     const blob = b64toBlob(base64.split(";base64").pop());
+  //     const resp = await getSignedUrlForUpload({
+  //       path: uuidv4(),
+  //       fileType: "png",
+  //     });
+
+  //     fetch(resp?.urls, {
+  //       method: "PUT",
+  //       headers: { "Content-Type": "image/*" },
+  //       body: blob,
+  //     });
+  //     return resp?.publicUrl;
+  //   } catch (err) {
+  //     return err;
+  //   }
+  // }
+
+  async uploadImage(base64 : string){
+    // Extract the MIME type from the base64 string
+    const mimeTypeMatch = base64.match(/data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+).*,.*/);
+
+    if (!mimeTypeMatch || mimeTypeMatch.length < 2) {
+      console.error('Invalid base64 string format');
+      return; // or throw an error
+    }
+
+    const mimeType = mimeTypeMatch[1];
+
+    // Remove the MIME type from the base64 string and convert it to a buffer
+    const base64Data = base64.replace(/^data:image\/\w+;base64,/, '');
+    const imageBuffer = Buffer.from(base64Data, 'base64');
+
+    //getting presigned url
+    const resp = await getSignedUrlForUpload({path: uuidv4(),fileType: mimeType});
+
+    //posting to s3 bucket
     try {
-      let matches: string[] | any = base64.match(
-        /^data:([A-Za-z-+/]+);base64,(.+)$/
-      );
-      // response: IResponseProps = {
-      //   type: "",
-      //   data: new Buffer(matches[1], "base64"),
-      // };
-
-      if (matches.length !== 3) {
-        throw new Error("Invalid input string");
-      }
-
-      const b64toBlob = (b64Data: any, contentType = "", sliceSize = 512) => {
-        const byteCharacters = atob(b64Data);
-        const byteArrays = [];
-
-        for (
-          let offset = 0;
-          offset < byteCharacters.length;
-          offset += sliceSize
-        ) {
-          const slice = byteCharacters.slice(offset, offset + sliceSize);
-
-          const byteNumbers = new Array(slice.length);
-          for (let i = 0; i < slice.length; i++) {
-            byteNumbers[i] = slice.charCodeAt(i);
-          }
-
-          const byteArray = new Uint8Array(byteNumbers);
-          byteArrays.push(byteArray);
+      const response = await axios.put(resp?.urls, imageBuffer, {
+        headers: {
+          'Content-Type': mimeType,
+          'Content-Length': imageBuffer.length
         }
-
-        const blob = new Blob(byteArrays, { type: contentType });
-        return blob;
-      };
-
-      const blob = b64toBlob(base64.split(";base64").pop());
-      const resp = await getSignedUrlForUpload({
-        path: uuidv4(),
-        filetype: "png",
       });
 
-      fetch(resp?.urls, {
-        method: "PUT",
-        headers: { "Content-Type": "image/*" },
-        body: blob,
-      });
-      return resp?.publicUrl;
-    } catch (err) {
-      return err;
+      if (response.status === 200) {
+        return resp?.publicUrl;
+
+      } else {
+        console.log('Failed to upload image:', response.status, response.statusText);
+      }
+    } catch (error) {
+      console.error('An error occurred while uploading the image:', error);
+      throw error;
     }
   }
 
@@ -195,16 +237,19 @@ class IssueService {
 
         return bppResponse;
       }
-      const imageUri: string[] = [];
+      let imageUri: string[] = [];
 
       // const ImageBaseURL = getSignedUrlForUpload()
       // process.env.VOLUME_IMAGES_BASE_URL ||
       // "http://localhost:8989/issueApis/uploads/";
 
-      issue?.description?.images?.map(async (item: string) => {
-        const imageLink = await this.uploadImage(item);
-        imageUri.push(imageLink);
-      });
+      // issue?.description?.images?.map(async (item: string) => {
+      //   const imageLink = await this.uploadImage(item);
+      //   imageUri.push(imageLink);
+      // });
+
+      const imageUploadPromises = issue.description.images.map(item => this.uploadImage(item));
+      imageUri = (await Promise.all(imageUploadPromises)).filter(url => url !== null);
 
       issue?.description?.images?.splice(
         0,

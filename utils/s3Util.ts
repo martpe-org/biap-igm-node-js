@@ -5,9 +5,9 @@ async function getSignedUrlForUpload(data: any): Promise<any> {
   const version = process.env.S3_VERSION;
   const region = process.env.S3_REGION;
   const bucket = process.env.S3_BUCKET;
-  const publicPath = process.env.S3_PUBLIC_PATH;
+  //const publicPath = process.env.S3_PUBLIC_PATH;
 
-  console.log({ version, region, bucket, publicPath });
+  //console.log({ version, region, bucket, publicPath });
 
   //TODO:move to ext config
   const s3 = new AWS.S3({
@@ -20,10 +20,10 @@ async function getSignedUrlForUpload(data: any): Promise<any> {
 
   const myBucket = bucket;
 
-  console.log(process.env.PROTOCOL_BASE_URL);
-  console.log("s3------>", s3);
-  console.log("bucket------>", bucket);
-  console.log("data------>", data);
+  //console.log(process.env.PROTOCOL_BASE_URL);
+  //console.log("s3------>", s3);
+  //console.log("bucket------>", bucket);
+  //console.log("data------>", data);
   //TODO: Use Axios to send http request
   try {
     const myKey =
