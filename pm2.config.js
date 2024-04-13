@@ -1,7 +1,7 @@
 module.exports = {
     apps : [{
         name   : "martpe-igm-api",
-        script : "npm run start:dev",
+        script : "npm run start:prod",
         instances: 1,
         max_memory_restart: '300M',
         env_production: {
