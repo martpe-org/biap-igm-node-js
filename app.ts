@@ -5,10 +5,25 @@ import loadEnvVariables from "./utils/envHelper";
 import issueRoutes from "./routes/issue";
 import issue_statusRoutes from "./routes/issue_status";
 import sseRoutes from "./routes/sse";
+import http from 'http';
+import {Server} from 'socket.io';
 //import initializeFirebase from "./lib/firebase/initializeFirebase";
 
-const createServer = (): express.Application => {
+const createServer = (): {app: Application, io: Server} => {
   const app: Application = express();
+
+  const server = http.createServer(app);
+  const io = new Server(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
+  });
+
+  io.on("connection", (socket) => {
+    console.log(`web socket connected to ${socket.id}`);
+  })
+
 
   // initialize environment variables
   loadEnvVariables();
@@ -22,7 +37,7 @@ const createServer = (): express.Application => {
   //Routes
   app.use("/issueApis", issueRoutes);
   app.use("/issueApis", issue_statusRoutes);
-  app.use("/issueApis", sseRoutes);
+  app.use("/issueApis", sseRoutes(io));
 
   app.use(express.static("images"));
   app.use("/issueApis/uploads", express.static("images"));
@@ -53,7 +68,7 @@ const createServer = (): express.Application => {
     }
   );
 
-  return app;
+  return {app,io};
 };
 
 export default createServer;

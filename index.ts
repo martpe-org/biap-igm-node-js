@@ -4,7 +4,7 @@ import dbConnect from "./database/mongooseConnector";
 
 const port = 6969;
 
-const app = createServer();
+const {app, io} = createServer();
 
 try {
   //Setup connection to the database
@@ -13,9 +13,11 @@ try {
     .then(() => {
       logger.info("Database connection successful");
 
-      app.listen(port, (): void => {
+      const server = app.listen(port, (): void => {
         logger.info(`Connected successfully on port ${port}`);
       });
+
+      io.attach(server);
     })
     .catch((error: any) => {
       logger.info("Error connecting to the database", error);
