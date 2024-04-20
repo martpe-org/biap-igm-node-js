@@ -56,6 +56,16 @@ class SseController {
       moreData: "Additional data if needed"
     });
 
+    const result = {
+      message: {
+        ack: {
+          status: 'ACK'
+        }
+      }
+    };
+
+    res.json(result);
+
     // sseProtocolService
     //   .onIssue(response)
     //   .then((result: any) => {
@@ -90,6 +100,16 @@ class SseController {
         message: {messageId},
         moreData: "Additional data if needed"
     });
+
+    const result = {
+      message: {
+        ack: {
+          status: 'ACK'
+        }
+      }
+    };
+
+    res.json(result);
 
     // sseProtocolService
     //   .onIssueStatus(response)
